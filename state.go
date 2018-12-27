@@ -69,11 +69,11 @@ func (s *State) BrowseActions(move int) string {
 }
 
 // StartConnection begins a WebSocket connection to url.
-func (s *State) StartConnection(url string) error {
+func (s *State) StartConnection(url string, args []string) error {
 	if s.Conn != nil {
 		return errors.New("state: conn is not nil")
 	}
-	ws, err := CreateWebSocket(url)
+	ws, err := CreateWebSocket(url, args)
 	if err != nil {
 		return err
 	}

@@ -125,14 +125,20 @@ func (w WebSocketResponseError) Error() string {
 }
 
 // CreateWebSocket initialises a new WebSocket connection.
-func CreateWebSocket(url string) (*WebSocket, error) {
+func CreateWebSocket(url string, args []string) (*WebSocket, error) {
 	state.Debug("Starting WebSocket connection to " + url)
 
-    var header = map[string][]string{
+    /*var headers = map[string][]string{
         "Content-Type": {"application/json"},
         "Accept": {"application/json"},
+    }*/
+    headers := make(map[string][]string)
+    for i := 0; i < len(args); i += 2 {
+        headers[args[i]] = make([]string, 1)
+        headers[args[i]][0] = args[i+1]
+        state.Debug(args[i] + ":" + args[i+1]);
     }
-	conn, resp, err := websocket.DefaultDialer.Dial(url, header)
+	conn, resp, err := websocket.DefaultDialer.Dial(url, headers)
 	if err != nil {
 		return nil, WebSocketResponseError{
 			Err:  err,
