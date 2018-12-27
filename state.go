@@ -153,7 +153,7 @@ func (s *State) pipe(data, t string, command []string) (string, error) {
 		"CLAWS_WS_URL="+s.Conn.URL(),
 	)
 	// set up stdin
-	stdin := strings.NewReader(data)
+	stdin := strings.NewReader(data+"\n")
 	c.Stdin = stdin
 
 	// run the command

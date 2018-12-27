@@ -1,6 +1,8 @@
 package main
 
 import (
+    "time"
+
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -94,6 +96,23 @@ func (w *WebSocket) close(c chan<- string) error {
 	return w.Close()
 }
 
+func (w *WebSocket) doPing() {
+    var data = []byte("hello")
+    if err := w.conn.WriteMessage(websocket.PingMessage, data); err != nil {
+        state.Error(err.Error())
+    }
+}
+
+func (w *WebSocket) pingTimer() {
+    timer := time.NewTicker(30 * time.Second);
+    for {
+        select {
+        case <-timer.C:
+            w.doPing();
+        }
+    }
+}
+
 // WebSocketResponseError is the error returned when there is an error in
 // CreateWebSocket.
 type WebSocketResponseError struct {
@@ -109,7 +128,11 @@ func (w WebSocketResponseError) Error() string {
 func CreateWebSocket(url string) (*WebSocket, error) {
 	state.Debug("Starting WebSocket connection to " + url)
 
-	conn, resp, err := websocket.DefaultDialer.Dial(url, nil)
+    var header = map[string][]string{
+        "Content-Type": {"application/json"},
+        "Accept": {"application/json"},
+    }
+	conn, resp, err := websocket.DefaultDialer.Dial(url, header)
 	if err != nil {
 		return nil, WebSocketResponseError{
 			Err:  err,
@@ -124,6 +147,8 @@ func CreateWebSocket(url string) (*WebSocket, error) {
 	}
 
 	go ws.writePump()
+
+    go ws.pingTimer()
 
 	return ws, nil
 }
