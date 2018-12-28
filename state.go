@@ -160,7 +160,7 @@ func (s *State) pipe(data, t string, command []string) (string, error) {
 		str += "\n"
 	}
 	// set up stdin
-	stdin := strings.NewReader(str+"\n")
+	stdin := strings.NewReader(str)
 	c.Stdin = stdin
 
 	// run the command
