@@ -152,8 +152,15 @@ func (s *State) pipe(data, t string, command []string) (string, error) {
 		"CLAWS_CONNECTION="+strconv.FormatInt(connectionStarted.UnixNano()/1000, 10),
 		"CLAWS_WS_URL="+s.Conn.URL(),
 	)
+    str := data
+	if s.Settings.Timestamp != "" {
+		str = time.Now().Format(s.Settings.Timestamp) + str
+	}
+	if str != "" && str[len(str)-1] != '\n' {
+		str += "\n"
+	}
 	// set up stdin
-	stdin := strings.NewReader(data+"\n")
+	stdin := strings.NewReader(str+"\n")
 	c.Stdin = stdin
 
 	// run the command
